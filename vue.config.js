@@ -5,9 +5,10 @@ module.exports = defineConfig({
     port: 8081,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080/xd-account/',
+        target: 'http://124.220.24.28:8080/xd-account/',
+        changOrigin: true,
         pathRewrite: { '^/api': '' },//路径改写
-      },
+      }
     }
   }
 })

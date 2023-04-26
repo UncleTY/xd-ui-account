@@ -38,6 +38,11 @@ let api = {
         const url = baseURL + '/accounting/getFile';
         console.log(url);
         return service.post(url, data, file_header);
+    },
+    getTemplate(data) {
+        const url = baseURL + '/accounting/getTemplate';
+        console.log(url);
+        return service.post(url, data, file_header);
     }
 }
 
