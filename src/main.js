@@ -1,14 +1,20 @@
-import { createApp } from 'vue'
-import ElementPlus from 'element-plus';
+import Vue from 'vue'
 import App from './App.vue'
-import 'element-plus/dist/index.css'
-import api from './service'
-import axios from "axios";
+import router from './router'
+import store from './store'
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+import './assets/globle.css'
+import request from "@/utils/request";
 
-const app = createApp(App);
+Vue.config.productionTip = false
 
-app.use(ElementPlus);
+Vue.use(ElementUI,{size:"mini"});
 
-app.mount('#app');
-app.provide('$axios', axios)
-app.config.globalProperties.$api = api;
+Vue.prototype.request=request
+
+new Vue({
+  router,
+  store,
+  render: h => h(App)
+}).$mount('#app')
