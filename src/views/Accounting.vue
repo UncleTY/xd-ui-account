@@ -17,7 +17,7 @@
             <el-button type="primary" style="margin-left: 10px" @click="clearData">清空数据</el-button>
         </div>
         <el-table :data="tableData" border stripe :header-cell-class-name="headerBg"
-                  @selection-change="" :row-class-name="differRowStyle">
+                  @selection-change="" :row-class-name="differRowStyle" v-loading="loading">
             <el-table-column prop="subjectNo" label="科目编号"></el-table-column>
             <el-table-column prop="subjectBalance" label="科目金额"></el-table-column>
             <el-table-column prop="detailBalance" label="明细金额"></el-table-column>
@@ -47,7 +47,8 @@
                 markFlags: [],
                 fileUrl: '',
                 storeData: [],
-                showDiffFlag: true
+                showDiffFlag: true,
+                loading: false
             };
         },
         name: 'Accounting',
@@ -68,6 +69,7 @@
                 return this.$confirm(`确定移除 ${file.name}？`);
             },
             uploadFile(file) {
+                this.loading = true;
                 const param = new FormData();
                 param.append('file', file.file);
                 console.log(param);
@@ -79,6 +81,7 @@
                     this.storeData = res.data.checkResults
                     this.tableData = res.data.checkResults
                     // window.open(res.fileUrl)
+                    this.loading = false;
                 });
             },
             downloadResult() {

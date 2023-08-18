@@ -6,22 +6,20 @@
                        :http-request="uploadFile"
                        :format="['xls', 'xlsx']" accept=".xls, .xlsx" :file-list="fileList" :show-file-list="false"
                        style="margin-left: 10px;display: inline-block">
-                <el-button type="primary">上传对比<i class="el-icon-top"></i></el-button>
+                <el-button type="primary">上传截取<i class="el-icon-top"></i></el-button>
             </el-upload>
-            <el-button type="primary" style="margin-left: 10px" @click="downloadResult">比对结果下载<i
+            <el-button type="primary" style="margin-left: 10px" @click="downloadResult">截取结果下载<i
                     class="el-icon-bottom"></i></el-button>
             <el-button type="primary" style="margin-left: 10px" @click="downloadTemplate">模板下载<i
                     class="el-icon-bottom"></i></el-button>
-            <el-button type="primary" style="margin-left: 10px" @click="showDiff" v-show="showDiffFlag">显示差异</el-button>
-            <el-button type="primary" style="margin-left: 10px" @click="showAll" v-show="!showDiffFlag">显示全部</el-button>
-            <el-button type="primary" style="margin-left: 10px" @click="clearData">清空数据</el-button>
+           <el-button type="primary" style="margin-left: 10px" @click="clearData">清空数据</el-button>
         </div>
         <el-table :data="tableData" border stripe :header-cell-class-name="headerBg"
-                  @selection-change="" :row-class-name="differRowStyle">
-            <el-table-column prop="subjectNo" label="科目编号"></el-table-column>
-            <el-table-column prop="subjectBalance" label="科目金额"></el-table-column>
-            <el-table-column prop="detailBalance" label="明细金额"></el-table-column>
-            <el-table-column prop="diffBalance" label="差额"></el-table-column>
+                  @selection-change="" :row-class-name="differRowStyle" v-loading="loading">
+            <el-table-column prop="originData" label="原始数据"></el-table-column>
+            <el-table-column prop="beginDate" label="开始日期"></el-table-column>
+            <el-table-column prop="endDate" label="结束日期"></el-table-column>
+            <el-table-column prop="dateDuration" label="日期区间"></el-table-column>
         </el-table>
     </div>
 </template>
@@ -47,10 +45,10 @@
                 markFlags: [],
                 fileUrl: '',
                 storeData: [],
-                showDiffFlag: true
+                loading: false
             };
         },
-        name: 'Accounting',
+        name: 'Split',
         props: {
             msg: String
         },
@@ -68,22 +66,24 @@
                 return this.$confirm(`确定移除 ${file.name}？`);
             },
             uploadFile(file) {
+                this.loading = true;
                 const param = new FormData();
                 param.append('file', file.file);
                 console.log(param);
                 //测试请求方法
-                this.request.post("/file/check", param).then(res => {
+                this.request.post("/accounting/dealMsg", param).then(res => {
                     console.log(res.data.fileUrl)
-                    console.log(res.data.checkResults)
+                    console.log(res.data.splitDetailList)
                     this.fileUrl = res.data.fileUrl
-                    this.storeData = res.data.checkResults
-                    this.tableData = res.data.checkResults
-                    // window.open(res.fileUrl)
+                    this.storeData = res.data.splitDetailList
+                    this.tableData = res.data.splitDetailList
+                    this.loading = false;
+                    window.open(res.data.fileUrl);
                 });
             },
             downloadResult() {
                 if (this.fileUrl === '') {
-                    this.$message.error("请先上传文件进行对比！")
+                    this.$message.error("请先上传文件！")
                 } else {
                     window.open(this.fileUrl)
                 }
@@ -126,21 +126,10 @@
                     this.total = res.data.total
                 })*/
             },
-            showDiff() {
-                this.tableData = this.storeData.filter(item => {
-                    return item.diffBalance !== 0;
-                })
-                this.showDiffFlag = !this.showDiffFlag
-            },
-            showAll() {
-                this.tableData = this.storeData
-                this.showDiffFlag = !this.showDiffFlag
-            },
             clearData() {
                 this.storeData = []
                 this.tableData = []
                 this.fileUrl = ''
-                this.showDiffFlag = true
             },
             differRowStyle({row, rowIndex}) {
                 debugger
