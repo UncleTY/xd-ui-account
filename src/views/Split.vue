@@ -17,6 +17,8 @@
         <el-table :data="tableData" border stripe :header-cell-class-name="headerBg"
                   @selection-change="" :row-class-name="differRowStyle" v-loading="loading">
             <el-table-column prop="originData" label="原始数据"></el-table-column>
+            <el-table-column prop="message" label="内容"></el-table-column>
+            <el-table-column prop="feeType" label="费用类型"></el-table-column>
             <el-table-column prop="beginDate" label="开始日期"></el-table-column>
             <el-table-column prop="endDate" label="结束日期"></el-table-column>
             <el-table-column prop="dateDuration" label="日期区间"></el-table-column>
@@ -26,6 +28,7 @@
 
 <script>
 
+import {serverIp} from "../../public/config";
 
     export default {
         data() {
@@ -78,53 +81,18 @@
                     this.storeData = res.data.splitDetailList
                     this.tableData = res.data.splitDetailList
                     this.loading = false;
-                    window.open(res.data.fileUrl);
+                    // window.open(res.data.fileUrl);
                 });
             },
             downloadResult() {
                 if (this.fileUrl === '') {
                     this.$message.error("请先上传文件！")
                 } else {
-                    window.open(this.fileUrl)
+                    window.open(serverIp + "/file/getFile?fileName=" + this.fileUrl)
                 }
             },
             downloadTemplate() {
-                this.request.get("/file/getTemplate", {'responseType': 'blob'}).then(res => {
-                    console.log(res.data); // 获取服务端提供的数据
-                    let blob = new Blob([res.data], {type: "application/vnd.ms-excel;charset=utf-8"})
-                    let contentDisposition = res.headers['content-disposition']
-                    let pattern = new RegExp('filename=([^;]+\\.[^\\.;]+);*')
-                    let result = pattern.exec(contentDisposition)
-                    // 使用decodeURI对名字进行解码
-                    let fileName = decodeURI(result[1])
-                    let downloadElement = document.createElement('a')
-                    // 创建下载的链接
-                    let href = window.URL.createObjectURL(blob)
-                    downloadElement.style.display = 'none'
-                    downloadElement.href = href
-                    // 下载后文件名
-                    downloadElement.download = fileName
-                    document.body.appendChild(downloadElement)
-                    // 点击下载
-                    downloadElement.click()
-                    // 下载完成移除元素
-                    document.body.removeChild(downloadElement)
-                    // 释放掉blob对象
-                    window.URL.revokeObjectURL(href)
-                })
-            },
-            load() {
-                /*this.request.get("/accounting/queryCheckList", {
-                    params: {
-                        pageNum: this.pageNum,
-                        pageSize: this.pageSize,
-                        date: this.date,
-                        markFlag: this.markFlag
-                    }
-                }).then(res => {
-                    this.tableData = res.data.records
-                    this.total = res.data.total
-                })*/
+                window.open(serverIp + "/file/getFile?fileName=提取模板.xlsx");
             },
             clearData() {
                 this.storeData = []
@@ -132,7 +100,6 @@
                 this.fileUrl = ''
             },
             differRowStyle({row, rowIndex}) {
-                debugger
                 if (row.diffBalance !== 0 && row.diffBalance !== '0') {
                     console.log(row.diffBalance);
                     return 'warning-row';

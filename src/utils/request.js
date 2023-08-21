@@ -1,6 +1,6 @@
 import axios from 'axios'
 import ElementUI from "element-ui";
-import {serverIp} from "../../public/config";
+
 
 const request = axios.create({
     baseURL: '/api',
